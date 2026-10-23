@@ -46,3 +46,14 @@ def setup():
 @app.route("/teste")
 def teste():
     return "TESTE OK"
+with app.app_context():
+    if TOKEN and RENDER_URL:
+        try:
+            r = requests.get(
+                f"https://api.telegram.org/bot{TOKEN}/setWebhook",
+                params={"url": RENDER_URL.rstrip("/") + "/webhook"},
+                timeout=15
+            )
+            print("CONFIGURAÇÃO WEBHOOK:", r.status_code, r.text)
+        except Exception as e:
+            print("ERRO WEBHOOK:", str(e))
