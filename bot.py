@@ -41,3 +41,6 @@ def setup():
         timeout=10
     )
     return response.text, response.status_code
+@app.route("/teste")
+def teste():
+    return "TESTE OK"
