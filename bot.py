@@ -4,7 +4,9 @@ from flask import Flask, request
 
 app = Flask(__name__)
 
-TOKEN = os.environ.get("TELEGRAM_TOKEN")
+TOKEN = (os.environ.get("TELEGRAM_TOKEN") or "").strip()
+if TOKEN.startswith("bot"):
+    TOKEN = TOKEN[3:]
 RENDER_URL = os.environ.get("RENDER_EXTERNAL_URL")
 
 @app.route("/")
