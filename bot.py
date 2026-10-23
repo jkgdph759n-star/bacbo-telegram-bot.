@@ -1,11 +1,11 @@
-
 import os
 import requests
-from flask import Flask
+from flask import Flask, request
 
 app = Flask(__name__)
 
 TOKEN = os.environ.get("TELEGRAM_TOKEN")
+RENDER_URL = os.environ.get("RENDER_EXTERNAL_URL")
 
 @app.route("/")
 def home():
@@ -13,21 +13,31 @@ def home():
 
 @app.route("/webhook", methods=["POST"])
 def webhook():
-    from flask import request
     data = request.get_json(silent=True) or {}
     message = data.get("message", {})
-    chat = message.get("chat", {})
+    chat_id = message.get("chat", {}).get("id")
     text = message.get("text", "")
-    chat_id = chat.get("id")
 
-    if chat_id and text == "/start":
+    if chat_id and text == "/start" and TOKEN:
         requests.post(
             f"https://api.telegram.org/bot{TOKEN}/sendMessage",
             json={
                 "chat_id": chat_id,
-                "text": "Olá! ❤️ O bot está ligado. Ainda estamos a preparar a análise dos resultados do Bac Bo."
+                "text": "Olá! ❤️ O bot está ligado!"
             },
             timeout=10
         )
 
     return {"ok": True}
+
+@app.route("/setup")
+def setup():
+    if not TOKEN or not RENDER_URL:
+        return "Falta configurar uma variável.", 500
+
+    response = requests.post(
+        f"https://api.telegram.org/bot{TOKEN}/setWebhook",
+        json={"url": RENDER_URL.rstrip("/") + "/webhook"},
+        timeout=10
+    )
+    return response.text, response.status_code
