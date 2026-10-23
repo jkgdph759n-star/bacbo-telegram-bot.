@@ -30,7 +30,7 @@ def webhook():
 
     return {"ok": True}
 
-@app.route("/setup")
+@app.route("/setup", methods=["GET"])
 def setup():
     if not TOKEN or not RENDER_URL:
         return "Falta configurar uma variável.", 500
